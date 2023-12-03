@@ -1,0 +1,4 @@
+@openzeppelin/=lib/openzeppelin-contracts/
+forge-std/=lib/forge-std/
+@lukso/=lib/lukso-foundry/src/
+@openzeppelin-contracts-upgradeable/=lib/lukso-foundry/lib/openzeppelin-contracts-upgradeable/contracts/
