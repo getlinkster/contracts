@@ -20,6 +20,8 @@ interface IEvent {
         address subscriber;
     }
 
+    function setPayoutAddress(address _newPayoutAddress) external onlyAdmin;
+
     function subscribe(
         SubscriptionType _type,
         SubscriptionTier _tier,

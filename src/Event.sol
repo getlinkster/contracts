@@ -5,9 +5,13 @@ import "./IEvent.sol";
 import "./Constants.sol";
 
 contract Event is IEvent, Constants {
-	// @dev payout to ourselves??
+    // @dev payout to ourselves??
     constructor() {
         payoutAddress = msg.sender;
+    }
+
+    function setPayoutAddress(address _newPayoutAddress) external onlyAdmin {
+        payoutAddress = _newPayoutAddress;
     }
 
     function subscribe(
@@ -83,7 +87,7 @@ contract Event is IEvent, Constants {
     }
 
     // @todo Add payout logic
-	// @todo e.g. transfer funds to the payout address
+    // @todo e.g. transfer funds to the payout address
     function payout() external override {
         require(msg.sender == payoutAddress, "Unauthorized payout");
         payable(payoutAddress).transfer(address(this).balance);
