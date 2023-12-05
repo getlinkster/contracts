@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+
 import "./interfaces/IEvent.sol";
 import "./Constants.sol";
 
 contract Event is IEvent, Constants {
+    AggregatorV3Interface internal dataFeed;
+
     mapping(address => mapping(uint256 => Subscription)) public subsPerWallet;
 
     modifier onlyAdmin() {
@@ -14,10 +18,22 @@ contract Event is IEvent, Constants {
 
     constructor() {
         payoutAddress = msg.sender;
+        dataFeed = AggregatorV3Interface(
+            0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419
+        );
     }
 
     function setPayoutAddress(address _newPayoutAddress) external onlyAdmin {
         payoutAddress = _newPayoutAddress;
+    }
+
+    function setDataFeedAddress(address _dataFeed) external onlyAdmin {
+        dataFeed = AggregatorV3Interface(_dataFeed);
+    }
+
+    function getChainlinkDataFeedLatestAnswer() public view returns (int) {
+        (, int answer, , , ) = dataFeed.latestRoundData();
+        return answer;
     }
 
     function subscribe(
@@ -69,7 +85,6 @@ contract Event is IEvent, Constants {
         );
     }
 
-
     // @todo Add logic to check if the wallet can create an event
     function canCreateEvent(address _wallet) external view returns (bool) {
         return
@@ -81,7 +96,8 @@ contract Event is IEvent, Constants {
     function canMakeContact(address _wallet) external view returns (bool) {
         return
             block.timestamp <
-            subsPerWallet[_wallet][uint256(SubscriptionType.NETWORKING)].endDate;
+            subsPerWallet[_wallet][uint256(SubscriptionType.NETWORKING)]
+                .endDate;
     }
 
     // @todo Add payout logic

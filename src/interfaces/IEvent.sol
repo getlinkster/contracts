@@ -22,15 +22,9 @@ interface IEvent {
 
     function setPayoutAddress(address _newPayoutAddress) external;
 
-    function subscribe(
-        SubscriptionType _type,
-        SubscriptionTier _tier,
-        address _subscriber
-    ) external payable;
+    function subscribe(SubscriptionType _type, SubscriptionTier _tier, address _subscriber) external payable;
 
-    function subscriptionInfo(
-        address _wallet
-    ) external view returns (Subscription memory, Subscription memory);
+    function subscriptionInfo(address _wallet) external view returns (Subscription memory, Subscription memory);
 
     function canCreateEvent(address _wallet) external view returns (bool);
 
