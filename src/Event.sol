@@ -1,11 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "./IEvent.sol";
+// import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+
+import "./interfaces/IEvent.sol";
 import "./Constants.sol";
 
 contract Event is IEvent, Constants {
-    // @dev payout to ourselves??
+    mapping(address => mapping(uint256 => Subscription)) public subsPerWallet;
+
+    modifier onlyAdmin() {
+        payoutAddress = msg.sender;
+        _;
+    }
+
     constructor() {
         payoutAddress = msg.sender;
     }
@@ -18,7 +26,7 @@ contract Event is IEvent, Constants {
         SubscriptionType _type,
         SubscriptionTier _tier,
         address _subscriber
-    ) external payable override {
+    ) external payable {
         // @todo Implement the subscription logic
 
         uint256 duration;
@@ -45,7 +53,7 @@ contract Event is IEvent, Constants {
         require(msg.value == price, "Incorrect subscription cost");
 
         // @dev Update subscription information
-        subsPerWallet[_subscriber][_type] = Subscription({
+        subsPerWallet[_subscriber][uint256(_type)] = Subscription({
             subscriptionType: _type,
             subscriptionTier: _tier,
             endDate: block.timestamp + duration,
@@ -56,39 +64,31 @@ contract Event is IEvent, Constants {
     // @todo Add remaining logic
     function subscriptionInfo(
         address _wallet
-    )
-        external
-        view
-        override
-        returns (Subscription memory, Subscription memory)
-    {
+    ) external view returns (Subscription memory, Subscription memory) {
         return (
-            subsPerWallet[_wallet][SubscriptionType.EVENT],
-            subsPerWallet[_wallet][SubscriptionType.NETWORKING]
+            subsPerWallet[_wallet][uint256(SubscriptionType.EVENT)],
+            subsPerWallet[_wallet][uint256(SubscriptionType.NETWORKING)]
         );
     }
 
+
     // @todo Add logic to check if the wallet can create an event
-    function canCreateEvent(
-        address _wallet
-    ) external view override returns (bool) {
+    function canCreateEvent(address _wallet) external view returns (bool) {
         return
             block.timestamp <
-            subsPerWallet[_wallet][SubscriptionType.EVENT].endDate;
+            subsPerWallet[_wallet][uint256(SubscriptionType.EVENT)].endDate;
     }
 
     // @todo Add logic to check if the wallet can make contact
-    function canMakeContact(
-        address _wallet
-    ) external view override returns (bool) {
+    function canMakeContact(address _wallet) external view returns (bool) {
         return
             block.timestamp <
-            subsPerWallet[_wallet][SubscriptionType.NETWORKING].endDate;
+            subsPerWallet[_wallet][uint256(SubscriptionType.NETWORKING)].endDate;
     }
 
     // @todo Add payout logic
     // @todo e.g. transfer funds to the payout address
-    function payout() external override {
+    function payout() external {
         require(msg.sender == payoutAddress, "Unauthorized payout");
         payable(payoutAddress).transfer(address(this).balance);
     }

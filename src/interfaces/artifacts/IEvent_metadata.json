@@ -1,0 +1,202 @@
+{
+	"compiler": {
+		"version": "0.8.23+commit.f704f362"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_wallet",
+						"type": "address"
+					}
+				],
+				"name": "canCreateEvent",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_wallet",
+						"type": "address"
+					}
+				],
+				"name": "canMakeContact",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "payout",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_newPayoutAddress",
+						"type": "address"
+					}
+				],
+				"name": "setPayoutAddress",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "enum IEvent.SubscriptionType",
+						"name": "_type",
+						"type": "uint8"
+					},
+					{
+						"internalType": "enum IEvent.SubscriptionTier",
+						"name": "_tier",
+						"type": "uint8"
+					},
+					{
+						"internalType": "address",
+						"name": "_subscriber",
+						"type": "address"
+					}
+				],
+				"name": "subscribe",
+				"outputs": [],
+				"stateMutability": "payable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_wallet",
+						"type": "address"
+					}
+				],
+				"name": "subscriptionInfo",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "enum IEvent.SubscriptionType",
+								"name": "subscriptionType",
+								"type": "uint8"
+							},
+							{
+								"internalType": "enum IEvent.SubscriptionTier",
+								"name": "subscriptionTier",
+								"type": "uint8"
+							},
+							{
+								"internalType": "uint256",
+								"name": "endDate",
+								"type": "uint256"
+							},
+							{
+								"internalType": "address",
+								"name": "subscriber",
+								"type": "address"
+							}
+						],
+						"internalType": "struct IEvent.Subscription",
+						"name": "",
+						"type": "tuple"
+					},
+					{
+						"components": [
+							{
+								"internalType": "enum IEvent.SubscriptionType",
+								"name": "subscriptionType",
+								"type": "uint8"
+							},
+							{
+								"internalType": "enum IEvent.SubscriptionTier",
+								"name": "subscriptionTier",
+								"type": "uint8"
+							},
+							{
+								"internalType": "uint256",
+								"name": "endDate",
+								"type": "uint256"
+							},
+							{
+								"internalType": "address",
+								"name": "subscriber",
+								"type": "address"
+							}
+						],
+						"internalType": "struct IEvent.Subscription",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"src/interfaces/IEvent.sol": "IEvent"
+		},
+		"evmVersion": "shanghai",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": true,
+			"runs": 200
+		},
+		"remappings": [
+			":@lukso/=lib/lukso-foundry/src/",
+			":@openzeppelin-contracts-upgradeable/=lib/lukso-foundry/lib/openzeppelin-contracts-upgradeable/contracts/",
+			":@openzeppelin/=lib/openzeppelin-contracts/",
+			":ds-test/=lib/forge-std/lib/ds-test/src/",
+			":forge-std/=lib/forge-std/",
+			":forge-std/=lib/forge-std/src/"
+		]
+	},
+	"sources": {
+		"src/interfaces/IEvent.sol": {
+			"keccak256": "0x2a93884e98c2b06da0599b9368f752bcf564610d4871adb0aa48233d14502bcf",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://d32d6c39968be1d78c5a5b8c483e9d8d43a00a633583f84937854b3205d88f2e",
+				"dweb:/ipfs/QmYsmqp5z4ENjLTyoJrb7b1LHLtnXe5u1K9WXsF73uspmw"
+			]
+		}
+	},
+	"version": 1
+}
