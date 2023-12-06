@@ -7,11 +7,11 @@ import "./interfaces/IEvent.sol";
 import "./Constants.sol";
 
 contract Event is IEvent, Constants {
-    // event Console(
-    //     uint256 costInEther,
-    //     uint256 ethPriceInUSD,
-    //     uint256 priceInUSD
-    // );
+    event Console(
+        uint256 costInEther,
+        uint256 ethPriceInUSD,
+        uint256 priceInUSD
+    );
     AggregatorV3Interface internal dataFeed;
 
     mapping(address => mapping(uint256 => Subscription)) public subsPerWallet;
@@ -33,14 +33,14 @@ contract Event is IEvent, Constants {
         subscriptionInfo[SubscriptionType.EVENT][
             SubscriptionTier.LIMITED
         ] = SubscriptionInfo({
-            duration: EVENT_LIMITED_DURATION,
+            duration: EVENT_DURATION,
             priceInUSD: EVENT_LIMITED_SUBSCRIPTION_PRICE
         });
 
         subscriptionInfo[SubscriptionType.EVENT][
             SubscriptionTier.UNLIMITED
         ] = SubscriptionInfo({
-            duration: type(uint256).max, // Unlimited
+            duration: EVENT_DURATION,
             priceInUSD: EVENT_UNLIMITED_SUBSCRIPTION_PRICE
         });
 
@@ -79,14 +79,15 @@ contract Event is IEvent, Constants {
     ) external payable {
         SubscriptionInfo memory info = subscriptionInfo[_type][_tier];
 
-        // uint256 ethPriceInUSD = uint256(getChainlinkDataFeedLatestAnswer());
+        uint256 ethPriceInUSD = uint256(getChainlinkDataFeedLatestAnswer());
         // @dev costInEther overflows and returns 0
-        // uint256 costInEther = (info.priceInUSD * (10 ** 18)) / ethPriceInUSD;
-	
-        // emit Console(costInEther, ethPriceInUSD, info.priceInUSD);
+        uint256 costInEther = (info.priceInUSD * (10 ** 18)) / ethPriceInUSD;
+
+        // @dev debugging purposes
+        emit Console(costInEther, ethPriceInUSD, info.priceInUSD);
 
         // @dev trigger every 3600 seconds or high deviation
-        // require(msg.value >= costInEther, "Incorrect subscription cost");
+        require(msg.value >= costInEther, "Incorrect subscription cost");
 
         subsPerWallet[_subscriber][uint256(_type)] = Subscription({
             subscriptionType: _type,

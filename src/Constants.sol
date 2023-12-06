@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 contract Constants {
-    uint256 public constant EVENT_LIMITED_DURATION = 2629746; // 1 month
+    uint256 public constant EVENT_DURATION = 2629746; // 1 month
     uint256 public constant NETWORKING_LIMITED_DURATION = 864000; // 10 days
 
     uint256 public EVENT_LIMITED_SUBSCRIPTION_PRICE = 19;
