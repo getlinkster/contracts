@@ -54,7 +54,7 @@ contract Event is IEvent, Constants {
         subscriptionInfo[SubscriptionType.NETWORKING][
             SubscriptionTier.UNLIMITED
         ] = SubscriptionInfo({
-            duration: type(uint256).max, // Unlimited
+            duration: NETWORKING_UNLIMITED_DURATION,
             priceInUSD: NETWORKING_UNLIMITED_SUBSCRIPTION_PRICE
         });
     }
@@ -81,9 +81,8 @@ contract Event is IEvent, Constants {
 
         uint256 ethPriceInUSD = uint256(getChainlinkDataFeedLatestAnswer());
         // @dev costInEther overflows and returns 0
-        uint256 costInEther = (info.priceInUSD * (10 ** 18)) / ethPriceInUSD;
+        uint256 costInEther = info.priceInUSD / ethPriceInUSD;
 
-        // @dev debugging purposes
         emit Console(costInEther, ethPriceInUSD, info.priceInUSD);
 
         // @dev trigger every 3600 seconds or high deviation
