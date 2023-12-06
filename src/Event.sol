@@ -7,9 +7,16 @@ import "./interfaces/IEvent.sol";
 import "./Constants.sol";
 
 contract Event is IEvent, Constants {
+    // event Console(
+    //     uint256 costInEther,
+    //     uint256 ethPriceInUSD,
+    //     uint256 priceInUSD
+    // );
     AggregatorV3Interface internal dataFeed;
 
     mapping(address => mapping(uint256 => Subscription)) public subsPerWallet;
+    mapping(SubscriptionType => mapping(SubscriptionTier => SubscriptionInfo))
+        public subscriptionInfo;
 
     modifier onlyAdmin() {
         payoutAddress = msg.sender;
@@ -18,9 +25,38 @@ contract Event is IEvent, Constants {
 
     constructor() {
         payoutAddress = msg.sender;
+
         dataFeed = AggregatorV3Interface(
             0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419
         );
+
+        subscriptionInfo[SubscriptionType.EVENT][
+            SubscriptionTier.LIMITED
+        ] = SubscriptionInfo({
+            duration: EVENT_LIMITED_DURATION,
+            priceInUSD: EVENT_LIMITED_SUBSCRIPTION_PRICE
+        });
+
+        subscriptionInfo[SubscriptionType.EVENT][
+            SubscriptionTier.UNLIMITED
+        ] = SubscriptionInfo({
+            duration: type(uint256).max, // Unlimited
+            priceInUSD: EVENT_UNLIMITED_SUBSCRIPTION_PRICE
+        });
+
+        subscriptionInfo[SubscriptionType.NETWORKING][
+            SubscriptionTier.LIMITED
+        ] = SubscriptionInfo({
+            duration: NETWORKING_LIMITED_DURATION,
+            priceInUSD: NETWORKING_BOOSTER_PRICE
+        });
+
+        subscriptionInfo[SubscriptionType.NETWORKING][
+            SubscriptionTier.UNLIMITED
+        ] = SubscriptionInfo({
+            duration: type(uint256).max, // Unlimited
+            priceInUSD: NETWORKING_UNLIMITED_SUBSCRIPTION_PRICE
+        });
     }
 
     function setPayoutAddress(address _newPayoutAddress) external onlyAdmin {
@@ -31,9 +67,9 @@ contract Event is IEvent, Constants {
         dataFeed = AggregatorV3Interface(_dataFeed);
     }
 
-    function getChainlinkDataFeedLatestAnswer() public view returns (int) {
-        (, int answer, , , ) = dataFeed.latestRoundData();
-        return answer;
+    function payout() external {
+        require(msg.sender == payoutAddress, "Unauthorized payout");
+        payable(payoutAddress).transfer(address(this).balance);
     }
 
     function subscribe(
@@ -41,42 +77,27 @@ contract Event is IEvent, Constants {
         SubscriptionTier _tier,
         address _subscriber
     ) external payable {
-        // @todo Implement the subscription logic
+        SubscriptionInfo memory info = subscriptionInfo[_type][_tier];
 
-        uint256 duration;
-        uint256 price;
+        // uint256 ethPriceInUSD = uint256(getChainlinkDataFeedLatestAnswer());
+        // @dev costInEther overflows and returns 0
+        // uint256 costInEther = (info.priceInUSD * (10 ** 18)) / ethPriceInUSD;
+	
+        // emit Console(costInEther, ethPriceInUSD, info.priceInUSD);
 
-        if (_type == SubscriptionType.EVENT) {
-            if (_tier == SubscriptionTier.LIMITED) {
-                duration = EVENT_LIMITED_DURATION;
-                price = EVENT_LIMITED_SUBSCRIPTION_PRICE;
-            } else if (_tier == SubscriptionTier.UNLIMITED) {
-                duration = type(uint256).max; // Unlimited
-                price = EVENT_UNLIMITED_SUBSCRIPTION_PRICE;
-            }
-        } else if (_type == SubscriptionType.NETWORKING) {
-            if (_tier == SubscriptionTier.LIMITED) {
-                duration = NETWORKING_LIMITED_DURATION;
-                price = NETWORKING_BOOSTER_PRICE;
-            } else if (_tier == SubscriptionTier.UNLIMITED) {
-                duration = type(uint256).max; // Unlimited
-                price = NETWORKING_UNLIMITED_SUBSCRIPTION_PRICE;
-            }
-        }
+        // @dev trigger every 3600 seconds or high deviation
+        // require(msg.value >= costInEther, "Incorrect subscription cost");
 
-        require(msg.value == price, "Incorrect subscription cost");
-
-        // @dev Update subscription information
         subsPerWallet[_subscriber][uint256(_type)] = Subscription({
             subscriptionType: _type,
             subscriptionTier: _tier,
-            endDate: block.timestamp + duration,
+            endDate: block.timestamp + info.duration,
             subscriber: _subscriber
         });
     }
 
     // @todo Add remaining logic
-    function subscriptionInfo(
+    function getSubscriptionInfo(
         address _wallet
     ) external view returns (Subscription memory, Subscription memory) {
         return (
@@ -100,10 +121,8 @@ contract Event is IEvent, Constants {
                 .endDate;
     }
 
-    // @todo Add payout logic
-    // @todo e.g. transfer funds to the payout address
-    function payout() external {
-        require(msg.sender == payoutAddress, "Unauthorized payout");
-        payable(payoutAddress).transfer(address(this).balance);
+    function getChainlinkDataFeedLatestAnswer() public view returns (int) {
+        (, int answer, , , ) = dataFeed.latestRoundData();
+        return answer;
     }
 }
