@@ -27,8 +27,8 @@ contract Event is IEvent, Constants {
         payoutAddress = msg.sender;
 
         dataFeed = AggregatorV3Interface(
-            0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419
-        );
+            0x71b95cEA998831C28Eb7FF0AbFC80564C38Cf5A8
+        ); // @dev AVAX / USD on Fuji
 
         subscriptionInfo[SubscriptionType.EVENT][
             SubscriptionTier.LIMITED
