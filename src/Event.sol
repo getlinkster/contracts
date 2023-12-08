@@ -22,6 +22,8 @@ contract Event is IEvent, Constants {
 
     LinkTokenInterface private s_linkToken;
 
+    address MUMBAI_CONTRACT_ADDRESS = 0xEBEbbBF05B2d84e0a39Dd74B27D5cBDDeC964D00;
+
     mapping(address => mapping(uint256 => Subscription)) public subsPerWallet;
     mapping(SubscriptionType => mapping(SubscriptionTier => SubscriptionInfo))
         public subscriptionInfo;
@@ -167,5 +169,9 @@ contract Event is IEvent, Constants {
         bytes32 messageId = s_router.ccipSend(MUMBAI_CHAIN_SELECTOR, evm2AnyMessage);
 
         emit SentSubscriptionCrossChain(messageId);
+    }
+
+    function setMumbaiContractAddress(address _mumbaiContractAddress) external {
+        MUMBAI_CONTRACT_ADDRESS = _mumbaiContractAddress;
     }
 }

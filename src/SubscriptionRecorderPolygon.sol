@@ -34,4 +34,8 @@ contract SubscriptionRecorderPolygon is CCIPReceiver {
         return subscriptions[_address][uint256(_type)].endDate > block.timestamp;
     }
 
+    function setAvaxContractAddress(address _avaxContractAddress) external {
+        AVAX_CONTRACT_ADDRESS = _avaxContractAddress;
+    }
+
 }
