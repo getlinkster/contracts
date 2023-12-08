@@ -1,7 +1,8 @@
 forge-std/=lib/forge-std/
+@ccip/=node_modules/@chainlink/contracts-ccip/
 @openzeppelin/=lib/openzeppelin-contracts/
 @openzeppelin-contracts-upgradeable/=lib/lukso-foundry/lib/openzeppelin-contracts-upgradeable/contracts/
-@chainlink/contracts/src/v0.8/interfaces/=lib/chainlink/contracts/src/v0.8/interfaces/
+@chainlink/contracts/=lib/chainlink/contracts/
 @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 ds-test/=lib/forge-std/lib/ds-test/src/
 erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/

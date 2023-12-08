@@ -25,6 +25,8 @@ interface IEvent {
         uint256 priceInUSD;
     }
 
+    event SentSubscriptionCrossChain(bytes32 indexed messageId);
+
     function setPayoutAddress(address _newPayoutAddress) external;
 
     function subscribe(

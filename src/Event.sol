@@ -2,6 +2,10 @@
 pragma solidity ^0.8.17;
 
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+import {LinkTokenInterface} from "@chainlink/contracts/src/v0.8/shared/interfaces/LinkTokenInterface.sol";
+import {IRouterClient} from "@ccip/src/v0.8/ccip/interfaces/IRouterClient.sol";
+import {OwnerIsCreator} from "@ccip/src/v0.8/shared/access/OwnerIsCreator.sol";
+import {Client} from "@ccip/src/v0.8/ccip/libraries/Client.sol";
 
 import "./interfaces/IEvent.sol";
 import "./Constants.sol";
@@ -14,6 +18,10 @@ contract Event is IEvent, Constants {
     );
     AggregatorV3Interface internal dataFeed;
 
+    IRouterClient private s_router;
+
+    LinkTokenInterface private s_linkToken;
+
     mapping(address => mapping(uint256 => Subscription)) public subsPerWallet;
     mapping(SubscriptionType => mapping(SubscriptionTier => SubscriptionInfo))
         public subscriptionInfo;
@@ -23,7 +31,7 @@ contract Event is IEvent, Constants {
         _;
     }
 
-    constructor() {
+    constructor(address _router, address _link) {
         payoutAddress = msg.sender;
 
         dataFeed = AggregatorV3Interface(
@@ -57,6 +65,9 @@ contract Event is IEvent, Constants {
             duration: NETWORKING_UNLIMITED_DURATION,
             priceInUSD: NETWORKING_UNLIMITED_SUBSCRIPTION_PRICE
         });
+
+        s_router = IRouterClient(_router);
+        s_linkToken = LinkTokenInterface(_link);
     }
 
     function setPayoutAddress(address _newPayoutAddress) external onlyAdmin {
@@ -88,12 +99,15 @@ contract Event is IEvent, Constants {
         // @dev trigger every 3600 seconds or high deviation
         require(msg.value >= costInEther, "Incorrect subscription cost");
 
-        subsPerWallet[_subscriber][uint256(_type)] = Subscription({
+        Subscription memory _subscription = Subscription({
             subscriptionType: _type,
             subscriptionTier: _tier,
             endDate: block.timestamp + info.duration,
             subscriber: _subscriber
         });
+        subsPerWallet[_subscriber][uint256(_type)] = _subscription;
+
+        sendNewSubscriptionCrossChain(_subscription);
     }
 
     // @todo Add remaining logic
@@ -124,5 +138,34 @@ contract Event is IEvent, Constants {
     function getChainlinkDataFeedLatestAnswer() public view returns (int) {
         (, int answer, , , ) = dataFeed.latestRoundData();
         return answer;
+    }
+
+    function sendNewSubscriptionCrossChain(Subscription memory _subscription) internal {
+        bytes memory _subscriptionData = abi.encode(_subscription);
+
+        Client.EVM2AnyMessage memory evm2AnyMessage = Client.EVM2AnyMessage({
+            receiver: abi.encode(MUMBAI_CONTRACT_ADDRESS),
+            data: _subscriptionData,
+            tokenAmounts: new Client.EVMTokenAmount[](0),
+            extraArgs: Client._argsToBytes(
+                Client.EVMExtraArgsV1({gasLimit: 200_000})
+            ),
+            feeToken: address(s_linkToken)
+        });
+
+        uint256 fees = s_router.getFee(
+            MUMBAI_CHAIN_SELECTOR,
+            evm2AnyMessage
+        );
+
+        if (fees > s_linkToken.balanceOf(address(this))) {
+            revert("Not enough LINK balance");
+        }
+
+        s_linkToken.approve(address(s_router), fees);
+
+        bytes32 messageId = s_router.ccipSend(MUMBAI_CHAIN_SELECTOR, evm2AnyMessage);
+
+        emit SentSubscriptionCrossChain(messageId);
     }
 }

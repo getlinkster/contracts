@@ -14,4 +14,8 @@ contract Constants {
         99000000000000000000; // $59
 
     address public payoutAddress;
+
+    uint64 MUMBAI_CHAIN_SELECTOR = 12532609583862916517;
+
+    address MUMBAI_CONTRACT_ADDRESS;
 }

@@ -1,0 +1,26 @@
+{
+  "name": "contracts",
+  "version": "1.0.0",
+  "description": "Polygon Mumbai Contract: 0xC047161E02D16271a300af99487022C78Eb55E33",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/getlinkster/contracts.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/getlinkster/contracts/issues"
+  },
+  "homepage": "https://github.com/getlinkster/contracts#readme",
+  "dependencies": {
+    "@chainlink/contracts-ccip": "^1.2.1"
+  }
+}
