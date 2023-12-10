@@ -22,7 +22,8 @@ contract Event is IEvent, Constants {
 
     LinkTokenInterface private s_linkToken;
 
-    address MUMBAI_CONTRACT_ADDRESS = 0xEBEbbBF05B2d84e0a39Dd74B27D5cBDDeC964D00;
+    address MUMBAI_CONTRACT_ADDRESS =
+        0xEBEbbBF05B2d84e0a39Dd74B27D5cBDDeC964D00;
 
     mapping(address => mapping(uint256 => Subscription)) public subsPerWallet;
     mapping(SubscriptionType => mapping(SubscriptionTier => SubscriptionInfo))
@@ -37,7 +38,7 @@ contract Event is IEvent, Constants {
         payoutAddress = msg.sender;
 
         dataFeed = AggregatorV3Interface(
-            0x71b95cEA998831C28Eb7FF0AbFC80564C38Cf5A8
+            0x5498BB86BC934c8D34FDA08E81D444153d0D06aD
         ); // @dev AVAX / USD on Fuji
 
         subscriptionInfo[SubscriptionType.EVENT][
@@ -142,7 +143,9 @@ contract Event is IEvent, Constants {
         return answer;
     }
 
-    function sendNewSubscriptionCrossChain(Subscription memory _subscription) internal {
+    function sendNewSubscriptionCrossChain(
+        Subscription memory _subscription
+    ) internal {
         bytes memory _subscriptionData = abi.encode(_subscription);
 
         Client.EVM2AnyMessage memory evm2AnyMessage = Client.EVM2AnyMessage({
@@ -155,10 +158,7 @@ contract Event is IEvent, Constants {
             feeToken: address(s_linkToken)
         });
 
-        uint256 fees = s_router.getFee(
-            MUMBAI_CHAIN_SELECTOR,
-            evm2AnyMessage
-        );
+        uint256 fees = s_router.getFee(MUMBAI_CHAIN_SELECTOR, evm2AnyMessage);
 
         if (fees > s_linkToken.balanceOf(address(this))) {
             revert("Not enough LINK balance");
@@ -166,7 +166,10 @@ contract Event is IEvent, Constants {
 
         s_linkToken.approve(address(s_router), fees);
 
-        bytes32 messageId = s_router.ccipSend(MUMBAI_CHAIN_SELECTOR, evm2AnyMessage);
+        bytes32 messageId = s_router.ccipSend(
+            MUMBAI_CHAIN_SELECTOR,
+            evm2AnyMessage
+        );
 
         emit SentSubscriptionCrossChain(messageId);
     }
